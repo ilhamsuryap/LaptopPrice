@@ -199,7 +199,7 @@ elif menu == "About Us":
         image_circle = ImageOps.fit(image, size, centering=(0.5, 0.5))
         image_circle.putalpha(mask)
         with cols[idx]:
-            st.image(image_circle, caption=team_names[idx], use_container_width=True)
+            st.image(image_circle, caption=team_names[idx])
 
     st.write("""
     **Informasi Kontak:**
