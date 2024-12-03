@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import streamlit as st
 import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
@@ -10,15 +9,7 @@ import matplotlib.pyplot as plt
 from PIL import Image, ImageOps, ImageDraw, ExifTags
 import streamlit as st
 
-from PIL import Image, ImageOps, ImageDraw, ExifTags
-import streamlit as st
-
 # Path gambar tim dan nama anggota tim
-image_paths = ["karim.jpg", "ilham.jpg", "tyo.JPG", "lovvy.JPG"]
-team_names = ["Miftahul Karim", "Ilham Surya", "Bagus Prasetyo", "Putri Arensya"]
-
-
-# Path gambar tim
 image_paths = ["karim.jpg", "ilham.jpg", "tyo.JPG", "lovvy.JPG"]
 team_names = ["Miftahul Karim", "Ilham Surya", "Bagus Prasetyo", "Putri Arensya"]
 
@@ -49,6 +40,62 @@ if menu == "Overview":
     st.write("Nilai yang hilang dalam dataset:")
     st.write(df.isnull().sum())  # Menampilkan jumlah nilai yang hilang (null) pada setiap kolom
 
+    import streamlit as st
+
+    st.title("Overview Aplikasi Prediksi Harga Laptop")
+
+    st.subheader("1. Tentang Aplikasi")
+    st.write("""
+    Aplikasi ini dirancang untuk membantu pengguna memprediksi harga laptop berdasarkan spesifikasi teknisnya menggunakan algoritma Machine Learning. 
+    Selain itu, aplikasi menyediakan visualisasi data interaktif untuk memahami pola harga yang ada dalam dataset.
+    """)
+
+    st.subheader("2. Teknologi Machine Learning yang Digunakan")
+    st.write("""
+    Aplikasi ini menggunakan algoritma:
+    - **Linear Regression**: Untuk memprediksi harga laptop berdasarkan data yang dimasukkan oleh pengguna.
+    - Model dilatih menggunakan dataset laptop untuk memahami hubungan antara spesifikasi teknis dan harga.
+    """)
+
+    st.subheader("3. Jenis Grafik yang Tersedia")
+    st.write("""
+    Aplikasi ini menyediakan berbagai jenis visualisasi untuk membantu analisis data:
+    - **Barplot**: Untuk membandingkan nilai antar fitur.
+    - **Lineplot**: Untuk melihat tren data secara kronologis.
+    - **Scatterplot**: Untuk menganalisis hubungan antar variabel.
+    - **Histogram**: Untuk melihat distribusi data.
+    - **Boxplot**: Untuk menganalisis persebaran data serta mengidentifikasi outlier.
+    """)
+
+    st.subheader("4. Cara Mengoperasikan Aplikasi")
+    st.write("""
+    Langkah-langkah menggunakan aplikasi ini:
+    1. Masukkan spesifikasi laptop (misalnya: kecepatan prosesor, RAM, penyimpanan).
+    2. Klik tombol prediksi untuk mendapatkan estimasi harga laptop.
+    3. Gunakan fitur visualisasi untuk memahami pola data secara interaktif.
+    """)
+
+    st.subheader("5. Fitur Aplikasi")
+    st.write("""
+    Aplikasi ini memiliki beberapa fitur utama:
+    - **Prediksi Harga Laptop**: Memberikan estimasi harga berdasarkan input spesifikasi.
+    - **Visualisasi Data**: Menyediakan grafik interaktif untuk memahami pola dan hubungan antar variabel.
+    - **Deskripsi Dataset**: Menampilkan informasi tentang dataset yang digunakan.
+    - **Antarmuka yang Mudah Digunakan**: Dibangun menggunakan Streamlit untuk pengalaman pengguna yang intuitif.
+    """)
+
+    st.subheader("6. Dataset yang digunakan")
+    st.write("""
+    Dataset ini menggunakan dataset dari [Kaggle](https://www.kaggle.com/datasets/mrsimple07/laptoppriceprediction).  
+    Dataset tersebut dipilih karena:
+    - Memuat informasi yang relevan, seperti prosesor, RAM, penyimpanan, dan harga laptop.
+    - Cocok untuk analisis pola harga dan membangun model Machine Learning.
+    - Memiliki cakupan data sampai dengan 1000 baris data.
+    """)
+
+
+
+
 # Menu: Data Visualization - Menampilkan visualisasi data
 elif menu == "Data Visualization":
     st.subheader("Visualisasi Data")
@@ -64,23 +111,28 @@ elif menu == "Data Visualization":
     fig, ax = plt.subplots()
     if plot_type == "Barplot":
         sns.barplot(data=df, x=x_col, y=y_col, ax=ax)  # Membuat barplot
-        explanation = f"Barplot ini menunjukkan hubungan antara {x_col} dan {y_col}. Setiap bar mewakili nilai {x_col}, dan tinggi bar menggambarkan nilai rata-rata {y_col}."
+        explanation = (f"Barplot ini menunjukkan hubungan antara {x_col} dan {y_col}. "
+                       f"Setiap bar mewakili nilai {x_col}, dan tinggi bar menggambarkan nilai rata-rata {y_col}.")
         
     elif plot_type == "Lineplot":
         sns.lineplot(data=df, x=x_col, y=y_col, ax=ax)  # Membuat lineplot
-        explanation = f"Lineplot ini menggambarkan tren {y_col} terhadap {x_col}. Garis yang terbentuk menunjukkan perubahan nilai {y_col} seiring dengan perubahan {x_col}."
+        explanation = (f"Lineplot ini menggambarkan tren {y_col} terhadap {x_col}. "
+                       f"Garis yang terbentuk menunjukkan perubahan nilai {y_col} seiring dengan perubahan {x_col}.")
         
     elif plot_type == "Boxplot":
         sns.boxplot(data=df, x=x_col, y=y_col, ax=ax)  # Membuat boxplot
-        explanation = f"Boxplot ini digunakan untuk menunjukkan distribusi {y_col} untuk setiap kategori {x_col}. Boxplot membantu untuk mengidentifikasi outlier dan persebaran data."
+        explanation = (f"Boxplot ini digunakan untuk menunjukkan distribusi {y_col} untuk setiap kategori {x_col}. "
+                       f"Boxplot membantu untuk mengidentifikasi outlier dan persebaran data.")
         
     elif plot_type == "Scatterplot":
         sns.scatterplot(data=df, x=x_col, y=y_col, ax=ax)  # Membuat scatterplot
-        explanation = f"Scatterplot ini menunjukkan hubungan antara {x_col} dan {y_col}. Setiap titik mewakili pasangan nilai dari kedua variabel tersebut."
+        explanation = (f"Scatterplot ini menunjukkan hubungan antara {x_col} dan {y_col}. "
+                       f"Setiap titik mewakili pasangan nilai dari kedua variabel tersebut.")
         
     elif plot_type == "Histogram":
         sns.histplot(data=df, x=x_col, ax=ax)  # Membuat histogram
-        explanation = f"Histogram ini menggambarkan distribusi frekuensi nilai {x_col}. Sumbu X menunjukkan rentang nilai, dan sumbu Y menunjukkan jumlah data yang jatuh dalam rentang tersebut."
+        explanation = (f"Histogram ini menggambarkan distribusi frekuensi nilai {x_col}. S"
+                       f"umbu X menunjukkan rentang nilai, dan sumbu Y menunjukkan jumlah data yang jatuh dalam rentang tersebut.")
         
 
     # Menampilkan plot yang telah dibuat
@@ -155,7 +207,9 @@ elif menu == "About Us":
     st.write("""
     Selamat datang di aplikasi Machine Learning LaptopPrice!
     
-    Aplikasi ini dirancang untuk membantu pengguna memprediksi harga laptop berdasarkan berbagai fitur menggunakan algoritma machine learning. Tujuan kami adalah untuk memberikan prediksi harga yang akurat dan bermanfaat, agar pengguna dapat membuat keputusan pembelian yang lebih bijak.
+    Aplikasi ini dirancang untuk membantu pengguna memprediksi harga laptop berdasarkan berbagai fitur 
+    menggunakan algoritma machine learning. Tujuan kami adalah untuk memberikan prediksi harga yang akurat
+    dan bermanfaat, agar pengguna dapat membuat keputusan pembelian yang lebih bijak.
 
     **Fitur-fitur aplikasi kami meliputi:**
     - **Pemodelan Prediktif:** Menggunakan teknik machine learning canggih untuk memprediksi harga laptop.
@@ -163,7 +217,10 @@ elif menu == "About Us":
     - **Visualisasi Data:** Grafik dan bagan yang mendetail untuk membantu pengguna memahami tren dan pola harga.
 
     **Tentang Tim Kami:**
-    Tim kami terdiri dari ilmuwan data dan insinyur perangkat lunak yang berdedikasi untuk membuat teknologi yang bermanfaat dan mudah diakses untuk semua orang. Kami percaya pada kekuatan machine learning untuk mengubah cara kita membuat keputusan dan berharap aplikasi ini dapat memberikan nilai tambah pada pengalaman pembelian laptop Anda.
+    Tim kami terdiri dari ilmuwan data dan insinyur perangkat lunak yang berdedikasi untuk membuat teknologi yang
+    bermanfaat dan mudah diakses untuk semua orang. Kami percaya pada kekuatan machine learning untuk mengubah 
+    cara kita membuat keputusan dan berharap aplikasi ini dapat memberikan nilai tambah pada pengalaman pembelian 
+    laptop Anda.
     
     Terima kasih telah menggunakan aplikasi kami!
     """)
