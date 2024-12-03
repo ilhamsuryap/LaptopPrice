@@ -7,6 +7,12 @@ from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 import seaborn as sns
 import matplotlib.pyplot as plt
+from PIL import Image, ImageOps, ImageDraw, ExifTags
+import streamlit as st
+
+# Path gambar tim
+image_paths = ["karim.jpg", "ilham.jpg", "tyo.jpg", "lovvy.jpg"]
+team_names = ["Miftahul Karim", "Ilham Surya", "Bagus Prasetyo", "Putri Arensya"]
 
 # Judul aplikasi web
 st.title("Aplikasi Prediksi Harga Laptop")
@@ -137,11 +143,12 @@ elif menu == "Prediction":
     r_squared = model.score(X_test_scaled, y_test)  # Menghitung R-squared model
     st.write(f"R-squared Model: {r_squared:.2f}")  # Menampilkan nilai R-squared
 
+
 elif menu == "About Us":
     st.title("About Us")
     st.write("""
     Selamat datang di aplikasi Machine Learning LaptopPrice!
-
+    
     Aplikasi ini dirancang untuk membantu pengguna memprediksi harga laptop berdasarkan berbagai fitur menggunakan algoritma machine learning. Tujuan kami adalah untuk memberikan prediksi harga yang akurat dan bermanfaat, agar pengguna dapat membuat keputusan pembelian yang lebih bijak.
 
     **Fitur-fitur aplikasi kami meliputi:**
@@ -151,10 +158,45 @@ elif menu == "About Us":
 
     **Tentang Tim Kami:**
     Tim kami terdiri dari ilmuwan data dan insinyur perangkat lunak yang berdedikasi untuk membuat teknologi yang bermanfaat dan mudah diakses untuk semua orang. Kami percaya pada kekuatan machine learning untuk mengubah cara kita membuat keputusan dan berharap aplikasi ini dapat memberikan nilai tambah pada pengalaman pembelian laptop Anda.
-
+    
     Terima kasih telah menggunakan aplikasi kami!
+    """)
 
+    st.subheader("Tim Kami")
+
+    cols = st.columns(4)
+
+    # Menampilkan gambar tim dalam bentuk lingkaran dengan orientasi yang benar
+    for idx, path in enumerate(image_paths):
+        image = Image.open(path)
+        
+        # Memperbaiki orientasi gambar
+        try:
+            for orientation in ExifTags.TAGS.keys():
+                if ExifTags.TAGS[orientation] == 'Orientation':
+                    break
+            exif = dict(image._getexif().items())
+            if exif[orientation] == 3:
+                image = image.rotate(180, expand=True)
+            elif exif[orientation] == 6:
+                image = image.rotate(270, expand=True)
+            elif exif[orientation] == 8:
+                image = image.rotate(90, expand=True)
+        except (AttributeError, KeyError, IndexError):
+            # Jika gambar tidak memiliki data EXIF, lewati perbaikan orientasi
+            pass
+        
+        size = (min(image.width, image.height),) * 2
+        mask = Image.new('L', size, 0)
+        draw = ImageDraw.Draw(mask)
+        draw.ellipse((0, 0) + size, fill=255)
+        image_circle = ImageOps.fit(image, size, centering=(0.5, 0.5))
+        image_circle.putalpha(mask)
+        with cols[idx]:
+            st.image(image_circle, caption=team_names[idx], use_container_width=True)
+
+    st.write("""
     **Informasi Kontak:**
-    - Email: support@laptoppriceapp.com
+    - Email: lihat@laptoppriceapp.com
     - Situs Web: https://kelompok2-prediksihargalaptop.streamlit.app/
     """)
