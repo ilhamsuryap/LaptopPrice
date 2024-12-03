@@ -14,12 +14,12 @@ from PIL import Image, ImageOps, ImageDraw, ExifTags
 import streamlit as st
 
 # Path gambar tim dan nama anggota tim
-image_paths = ["karim.jpg", "ilham.jpg", "tyo.jpg", "lovvy.jpg"]
+image_paths = ["karim.jpg", "ilham.jpg", "tyo.JPG", "lovvy.JPG"]
 team_names = ["Miftahul Karim", "Ilham Surya", "Bagus Prasetyo", "Putri Arensya"]
 
 
 # Path gambar tim
-image_paths = ["karim.jpg", "ilham.jpg", "tyo.jpg", "lovvy.jpg"]
+image_paths = ["karim.jpg", "ilham.jpg", "tyo.JPG", "lovvy.JPG"]
 team_names = ["Miftahul Karim", "Ilham Surya", "Bagus Prasetyo", "Putri Arensya"]
 
 # Judul aplikasi web
