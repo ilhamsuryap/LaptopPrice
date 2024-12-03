@@ -93,9 +93,6 @@ if menu == "Overview":
     - Memiliki cakupan data sampai dengan 1000 baris data.
     """)
 
-
-
-
 # Menu: Data Visualization - Menampilkan visualisasi data
 elif menu == "Data Visualization":
     st.subheader("Visualisasi Data")
