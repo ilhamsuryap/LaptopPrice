@@ -378,7 +378,7 @@ def tentang_kami():
     st.write("""
     - Email : -
     - GitHub : https://github.com/ilhamsuryap/LaptopPrice/blob/main/Laptop.py
-    - Web : https://kelompok2-laptopprice.streamlit.app/
+    - Web : https://kelompok2-predictionlaptopprice.streamlit.app/
     """)
 
     st.subheader("Feedback")
