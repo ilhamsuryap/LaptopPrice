@@ -23,12 +23,13 @@ df_laptop = pd.read_csv("LaptopPrice.csv")
 # 2. Menampilkan informasi aplikasi
 def show_home():
     st.image("Cover.png")
-    st.write("""
+    st.header("""
         Selamat datang di aplikasi prediksi harga laptop! 
         Aplikasi ini menggunakan data harga laptop berdasarkan berbagai fitur seperti ukuran RAM, kapasitas penyimpanan, dan kecepatan prosesor.
     """)
-     # Menambahkan gambar logo brand laptop
-    st.subheader("Brand Laptop Terkenal")
+    
+    # Menambahkan gambar logo brand laptop
+    st.subheader("Brand Laptop")
     
     brand_images = {
         "Dell": "dell.png",
@@ -38,9 +39,18 @@ def show_home():
         "HP": "hp.png"
     }
 
-    # Menampilkan gambar brand
-    for brand, image_url in brand_images.items():
-        st.image(image_url, caption=brand, width=600)
+    # Membagi kolom menjadi 2
+    col1, col2 = st.columns(2)
+
+    # Menampilkan gambar brand di kolom pertama
+    with col1:
+        for brand, image_url in list(brand_images.items())[:3]:
+            st.image(image_url, caption=brand, width=400)
+    
+    # Menampilkan gambar brand di kolom kedua
+    with col2:
+        for brand, image_url in list(brand_images.items())[3:]:
+            st.image(image_url, caption=brand, width=400)
 
 # 3. Menu dataset
 def show_dataset():
@@ -145,11 +155,30 @@ def show_predict_price():
         mse = mean_squared_error(y_test, model_regresi_pred)
         rmse = np.sqrt(mse)
 
+        # 19. Menghitung akurasi model
+        # R-squared (R²)
+        r2_score = model_regresi.score(X_test, y_test)
+
+        # Mean Absolute Percentage Error (MAPE)
+        mape = np.mean(np.abs((y_test - model_regresi_pred) / y_test)) * 100
+
+        # Menghitung akurasi sebagai persen
+        accuracy = 100 - mape  # Akurasi = 100% - MAPE
+
         # Menampilkan evaluasi model setelah prediksi harga
         st.subheader("Evaluasi Model:")
         st.write(f"MAE: {mae:.2f}")
         st.write(f"MSE: {mse:.2f}")
         st.write(f"RMSE: {rmse:.2f}")
+        st.write(f"R² (R-squared): {r2_score:.2f}")
+        st.write(f"MAPE: {mape:.2f}%")
+        st.write(f"Akurasi: {accuracy:.2f}%")
+
+        # Grafik perbandingan harga asli dan harga prediksi
+        comparison_df = pd.DataFrame({'Harga Asli': y_test, 'Harga Prediksi': model_regresi_pred})
+        st.subheader("Perbandingan Harga Asli dan Harga Prediksi:")
+        st.line_chart(comparison_df)
+
 
 # 5. Tentang Aplikasi
 def show_about():
@@ -209,19 +238,8 @@ def show_about():
 
     st.header("Penjelasan MAE (Mean Absolute Error), MSE (Mean Squared Error), dan RMSE (Root Mean Squared Error)")
     st.markdown("""
-        <div style="text-align: justify;">
-       MSE, MAE, dan RMSE tidak berubah secara langsung ketika harga prediksi untuk laptop baru berubah. MSE (Mean Squared Error), MAE (Mean Absolute Error), dan RMSE (Root Mean Squared Error) mengukur kesalahan model dalam memprediksi data testing (data yang belum pernah dilihat oleh model).
-
-       1. MAE (Mean Absolute Error) mengukur rata-rata dari selisih absolut antara prediksi model dan nilai sebenarnya pada data testing.
-       2. MSE (Mean Squared Error) mengukur rata-rata dari kuadrat selisih antara prediksi model dan nilai sebenarnya pada data testing.
-       3. RMSE (Root Mean Squared Error) adalah akar kuadrat dari MSE dan juga mengukur kesalahan prediksi model.
-       Ketiga metrik ini mengukur kesalahan antara prediksi model terhadap data testing yang digunakan untuk evaluasi model, bukan hasil prediksi untuk laptop baru.
-
-       Mengapa MSE, MAE, dan RMSE Tidak Berubah Saat Prediksi Laptop Baru Berubah?
-       1. Metrik evaluasi (MAE, MSE, RMSE) dihitung berdasarkan data uji (X_test dan y_test) yang dipisahkan sebelumnya. Mereka hanya mengukur seberapa akurat model memprediksi data uji, bukan prediksi pada data baru yang dimasukkan oleh pengguna.
-       2. Prediksi pada laptop baru (misalnya, laptop dengan RAM 8GB, penyimpanan 384GB, dll) hanya akan menghasilkan harga prediksi dan tidak berhubungan langsung dengan kesalahan model terhadap data uji.
-       Jadi, meskipun harga prediksi berubah saat pengguna memasukkan spesifikasi laptop baru, metrik evaluasi tidak akan berubah kecuali Anda memprediksi kembali terhadap data uji dan menghitung ulang MAE, MSE, dan RMSE berdasarkan prediksi model terhadap data tersebut.
-
+        <div style="text-align: justify; margin-left: 20px; margin-right: 20px;">
+        
        Cara Metrik Evaluasi Bisa Berubah:
        Metrik evaluasi MAE, MSE, dan RMSE baru akan berubah jika Anda:
 
@@ -229,8 +247,50 @@ def show_about():
        2. Melatih ulang model dengan data pelatihan yang berbeda (misalnya, menggunakan data pelatihan yang lebih banyak atau lebih sedikit).
        3. Mengubah model (misalnya, menggunakan model yang berbeda seperti Linear Regression vs Random Forest).
        Namun, jika hanya spesifikasi laptop baru yang diubah, dan model yang sama serta data uji yang sama digunakan, metrik evaluasi tidak akan terpengaruh.
-        </div>
+       
+
+                
+    - Contoh penjelasan hasil prediksi 
+    1. MAE (Mean Absolute Error):
+
+    - Nilai 145.45 berarti bahwa rata-rata perbedaan absolut antara harga asli dan harga yang diprediksi oleh model adalah 145.45 (dalam satuan mata uang, mungkin rubel atau IDR tergantung konteks).
+    - Semakin kecil nilai MAE, semakin baik model dalam memprediksi harga tanpa memperhatikan arah kesalahan (positif atau negatif).
+
+    2. MSE (Mean Squared Error):
+
+    - Nilai 32031.54 menunjukkan bahwa rata-rata kuadrat dari perbedaan antara harga asli dan harga yang diprediksi adalah 32031.54.
+    - MSE memberi penekanan lebih besar pada kesalahan besar karena perbedaan dihitung kuadratnya, sehingga metrik ini sangat sensitif terhadap outlier (data yang jauh dari prediksi). Semakin kecil MSE, semakin baik model.
+
+    3. RMSE (Root Mean Squared Error):
+
+    - Nilai 178.97 adalah akar kuadrat dari MSE. Ini memberikan gambaran lebih jelas mengenai ukuran rata-rata kesalahan model dalam satuan yang sama dengan data asli (harga).
+    - RMSE memberikan gambaran yang lebih mudah dipahami karena satuannya sama dengan data asli. Semakin kecil RMSE, semakin baik prediksi model.
+
+    4. R² (R-squared):
+
+    - Nilai 1.00 menunjukkan bahwa model menjelaskan 100% dari variansi dalam data, yang berarti model sangat baik dalam memprediksi harga.
+    - R² adalah metrik yang menggambarkan seberapa baik model dapat menjelaskan variasi dalam data. Nilai 1.00 berarti model sangat akurat dalam memprediksi harga dan hampir tidak ada kesalahan dalam prediksi.
+
+                
+    5. MAPE (Mean Absolute Percentage Error):
+
+    - Nilai 0.96% menunjukkan bahwa kesalahan rata-rata dalam prediksi harga sebagai persentase adalah sangat rendah. Artinya, model memiliki prediksi yang sangat dekat dengan harga asli dalam hal persentase.
+    - MAPE yang rendah menandakan bahwa model memiliki tingkat akurasi yang tinggi, yaitu sekitar 99.04% akurat.
+
+    6. Akurasi:
+
+    - Nilai 99.04% menunjukkan bahwa prediksi model sangat akurat, dengan hanya 0.96% kesalahan relatif terhadap harga asli. Ini berarti bahwa model memiliki tingkat kesalahan yang sangat kecil, dan hasil prediksi sangat mendekati harga sebenarnya.
+
+    Kesimpulan:
+    Secara keseluruhan, model ini sangat baik dalam memprediksi harga laptop. Nilai R² = 1.00 dan MAPE = 0.96% menunjukkan bahwa model sangat akurat dan hanya memiliki sedikit kesalahan.
+    Akurasi model 99.04% menunjukkan bahwa prediksi harga hampir sempurna, dengan kesalahan yang sangat kecil.
+    MAE, MSE, dan RMSE yang rendah juga mendukung bahwa model ini memberikan prediksi yang akurat dan dapat diandalkan.
+    Model ini, berdasarkan evaluasi ini, sepertinya sangat efektif untuk memprediksi harga laptop berdasarkan fitur-fitur yang diberikan.
+      </div>
     """, unsafe_allow_html=True)
+
+
+    
 def tentang_kami():
     st.title("About Us")
     st.write("Aplikasi web ini dibuat oleh kelompok 2. Aplikasi ini bertujuan untuk menvisualisasikan dan menganalisis data Harga Laptop berdasarkan beberapa spesifikasi yang diberikan.")
@@ -337,6 +397,7 @@ def dokumentasi():
         <ul>
             <li>Menampilkan seluruh dataset yang digunakan dalam aplikasi.</li>
             <li>Menyediakan analisis dasar seperti statistik deskriptif, cek data kosong, distribusi harga, dan word cloud untuk merek laptop.</li>
+            <li>Default price pada dataset menggunakan mata uang rubel rusia.</li>
         </ul>
         </div>
     """, unsafe_allow_html=True)
@@ -438,7 +499,7 @@ def show_visualisasi_data():
         st.pyplot(plt)
         
 # Menambahkan menu Visualisasi Data di sidebar
-menu = st.sidebar.selectbox("Pilih Menu", ["Beranda", "Dataset", "Prediksi Harga Laptop", "Tentang Aplikasi","Visualisasi Data", "Dokumentasi", "Tentang Kami", ])
+menu = st.sidebar.selectbox("Pilih Menu", ["Beranda", "Dataset","Visualisasi Data", "Prediksi Harga Laptop" , "Tentang Aplikasi", "Dokumentasi", "Tentang Kami", ])
 
 # Menampilkan konten berdasarkan menu yang dipilih
 if menu == "Beranda":
