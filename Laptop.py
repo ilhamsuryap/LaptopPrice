@@ -17,6 +17,19 @@ team_names = ["Miftahul Karim", "Ilham Surya", "Bagus Prasetyo", "Putri Arensya"
 image = Image.open('laptop.png')
 st.set_page_config(page_title="LaptopPrice", page_icon=image)# Judul aplikasi web
 
+st.markdown(
+    """
+    <style>
+        /* Mengubah background pada kontainer utama Streamlit */
+        .stApp {
+            background: linear-gradient(to bottom,  #ADD8E6, #FFFFFF);
+            color: black;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 col1, col2 = st.columns([1, 4])
 with col1:
     image = Image.open('blogger.png')
