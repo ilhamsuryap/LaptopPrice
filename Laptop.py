@@ -16,9 +16,17 @@ team_names = ["Miftahul Karim", "Ilham Surya", "Bagus Prasetyo", "Putri Arensya"
 
 image = Image.open('laptop.png')
 st.set_page_config(page_title="LaptopPrice", page_icon=image)# Judul aplikasi web
-st.title("Aplikasi Prediksi Harga Laptop")
+
+col1, col2 = st.columns([1, 4])
+with col1:
+    image = Image.open('blogger.png')
+    st.image(image, use_container_width=True)
+with col2:
+    st.title("Aplikasi Prediksi Harga Laptop")
 
 # Menu sidebar untuk memilih antara Overview, Data Visualization, atau Prediction
+image = Image.open('laptop.png')
+st.sidebar.image(image)
 menu = st.sidebar.selectbox("Menu", ["Overview", "Data Visualization", "Prediction", "About Us"])
 
 # Fungsi untuk memuat dataset dan menyimpannya di cache
@@ -171,7 +179,7 @@ elif menu == "Prediction":
         st.write("Model disimpan!")  # Memberikan notifikasi bahwa model telah disimpan
 
     # Input pengguna untuk spesifikasi laptop yang akan diprediksi
-    st.write("Masukkan spesifikasi laptop:")
+    st.write("Masukkan spesifikasi laptop yang anda inginkan :")
     processor_speed = st.number_input("Kecepatan Prosesor (GHz)", min_value=1.0, max_value=5.0, value=2.5, step=0.1)
     ram_size = st.number_input("Ukuran RAM (GB)", min_value=2, max_value=64, value=8, step=2)
     storage_capacity = st.number_input("Kapasitas Penyimpanan (GB)", min_value=128, max_value=2048, value=512, step=128)
@@ -189,18 +197,24 @@ elif menu == "Prediction":
 
         st.write(f"Prediksi Harga Laptop: ${predicted_price[0]:,.2f}")  # Menampilkan hasil prediksi harga
 
-        # Menampilkan grafik garis dengan prediksi harga
-        fig, ax = plt.subplots()
-        ax.plot(["Prediksi Harga"], predicted_price, marker="o", color="b", label="Harga Prediksi")
-        ax.set_ylabel("Harga Laptop ($)")
-        ax.set_title("Prediksi Harga Laptop")
-        ax.legend()
-        st.pyplot(fig)
+        col1, col2 = st.columns([2, 1])
+        with col2:
+            image = Image.open('data.png')
+            st.image(image, use_container_width=True)
+            st.write(f"Tabel di samping adalah Tabel prediksi yang digunakan untuk prediksi harga Laptop berdasarkan spesifikasi yang dipilih: kecepatan prosesor {processor_speed} GHz, RAM {ram_size} GB, kapasitas penyimpanan {storage_capacity} GB, ukuran layar {screen_size} inci, dan berat {weight} kg.")
+        
+        with col1:
+            fig, ax = plt.subplots()
+            ax.plot(["Prediksi Harga"], predicted_price, marker="o", color="b", label="Harga Prediksi")
+            ax.set_ylabel("Harga Laptop ($)")
+            ax.set_title("Prediksi Harga Laptop")
+            ax.legend()
+            st.pyplot(fig)
 
 # Menu: About Us - Menampilkan informasi pengembang
 elif menu == "About Us":
     st.title("About Us")
-
+    st.write("Aplikasi web ini dibuat oleh kelompok 2. Aplikasi ini bertujuan untuk menvisualisasikan dan menganalisis data Harga Laptop berdasarkan beberapa spesifikasi yang diberikan.")
 
     st.subheader("Tim Kami")
 
@@ -235,8 +249,27 @@ elif menu == "About Us":
         with cols[idx]:
             st.image(image_circle, caption=team_names[idx])
 
+    st.subheader("Anggota Kelompok 2")
     st.write("""
-    **Informasi Kontak:**
-    - Email: support@laptoppriceapp.com
-    - Situs Web: www.laptoppriceapp.com
+    - Bagus Prasetyo (06)
+    - Ilham Suryaputra (13)
+    - Muhammad Miftahul Karim (19)
+    - Putri Arensya Ingke Dinar Lovyta (22)
     """)
+
+    st.subheader("Kontak")
+    st.write("""
+    - Email : -
+    - GitHub : https://github.com/ilhamsuryap/LaptopPrice/blob/main/Laptop.py
+    - Web : https://kelompok2-laptopprice.streamlit.app/
+    """)
+
+    st.subheader("Feedback")
+    st.write("Seberapa suka anda dengan Aplikasi Web ini ?")
+
+    satisfaction = st.slider("Geser untuk memberi rating pada Aplikasi Web ini.", 0, 100, 50)
+    st.write(f"Presentase Kepuasan: {satisfaction}%")
+
+    feedback = st.text_area("Tulis komentar Anda di sini:")
+    if st.button("Kirim Feedback"):
+        st.write("Terima kasih atas feedback Anda!")
