@@ -1,0 +1,159 @@
+import pandas as pd
+import numpy as np
+import joblib
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.metrics import mean_squared_error, r2_score
+import seaborn as sns
+import matplotlib.pyplot as plt
+from PIL import Image, ImageOps, ImageDraw, ExifTags
+import streamlit as st
+
+# Path gambar tim dan nama anggota tim
+image_paths = ["karim.jpg", "ilham.jpg", "tyo.JPG", "lovvy.JPG"]
+team_names = ["Miftahul Karim", "Ilham Surya", "Bagus Prasetyo", "Putri Arensya"]
+
+# Judul aplikasi web
+st.title("Aplikasi Prediksi Harga Laptop")
+
+# Tambahkan menu "Beranda" di sidebar
+menu = st.sidebar.selectbox("Menu", ["Beranda", "Overview", "Data Visualization", "Prediction", "About Us", "Documentation"])
+
+# Menu: Beranda
+if menu == "Beranda":
+    st.title("Selamat Datang di Aplikasi Prediksi Harga Laptop")
+    st.write("""
+        Aplikasi ini digunakan untuk memprediksi harga laptop berdasarkan spesifikasi teknisnya.
+        Pilih menu di sidebar untuk mulai menggunakan aplikasi.
+    """)
+    
+    # Menambahkan gambar logo brand laptop
+    st.subheader("Brand Laptop Terkenal")
+    
+    brand_images = {
+        "Dell": "dell.png",
+        "Asus": "asus.png",
+        "Acer": "acer.png",
+        "Lenovo": "lenovo.png",
+        "HP": "hp.png"
+    }
+
+    # Menampilkan gambar brand
+    for brand, image_url in brand_images.items():
+        st.image(image_url, caption=brand, width=600)
+  
+
+# Fungsi untuk memuat dataset dan menyimpannya di cache
+@st.cache_data
+def load_data():
+    # Membaca dataset dari file CSV
+    df = pd.read_csv("LaptopPrice.csv")
+    return df
+
+# Memuat data ke dalam dataframe
+df = load_data()
+
+# Menu: Overview
+if menu == "Overview":
+    st.subheader("Gambaran Dataset")
+    st.write(f"Total baris dalam dataset: {df.shape[0]}") 
+    st.dataframe(df)
+    st.write("Shape dari dataset:", df.shape)
+
+# Menu: Data Visualization
+elif menu == "Data Visualization":
+    st.subheader("Visualisasi Data")
+
+    # Pilih kolom X dan Y untuk scatterplot
+    x_col = st.selectbox("Pilih kolom X-axis", df.columns)
+    y_col = st.selectbox("Pilih kolom Y-axis", df.columns)
+
+    # Membuat scatterplot
+    fig, ax = plt.subplots()
+    sns.scatterplot(data=df, x=x_col, y=y_col, ax=ax)
+    st.pyplot(fig)
+    st.write(f"Scatterplot antara **{x_col}** dan **{y_col}** menunjukkan pola hubungan antar variabel.")
+
+# Menu: Prediction
+elif menu == "Prediction":
+    st.subheader("Prediksi Harga Laptop")
+    
+    # Definisi fitur dan target
+    numeric_cols = ['Processor_Speed', 'RAM_Size', 'Storage_Capacity', 'Screen_Size', 'Weight']
+    target_col = 'Price'
+
+    # Encoding kolom kategorikal
+    for column in df.columns:
+        if df[column].dtype == 'object':
+            le = LabelEncoder()
+            df[column] = le.fit_transform(df[column])
+
+    # Scaling fitur
+    scaler = StandardScaler()
+    df[numeric_cols] = scaler.fit_transform(df[numeric_cols])
+
+    # Split data
+    X = df[numeric_cols]
+    y = df[target_col]
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    # Pilih model
+    model_type = st.radio("Pilih Metode Prediksi", ["Linear Regression", "Random Forest", "Gradient Boosting"])
+    if model_type == "Linear Regression":
+        model = LinearRegression()
+    elif model_type == "Random Forest":
+        model = RandomForestRegressor(random_state=42)
+    elif model_type == "Gradient Boosting":
+        model = GradientBoostingRegressor(random_state=42)
+
+    # Training
+    model.fit(X_train, y_train)
+
+    # Evaluasi
+    y_pred = model.predict(X_test)
+    mse = mean_squared_error(y_test, y_pred)
+    r2 = r2_score(y_test, y_pred)
+
+    st.write(f"### Evaluasi Model: **{model_type}**")
+    st.write(f"- Mean Squared Error: {mse:.2f}")
+    st.write(f"- R-squared: {r2:.2f}")
+
+    # Prediksi pengguna
+    st.write("Masukkan spesifikasi laptop:")
+    processor_speed = st.number_input("Kecepatan Prosesor (GHz)", min_value=1.0, max_value=5.0, value=2.5, step=0.1)
+    ram_size = st.number_input("Ukuran RAM (GB)", min_value=2, max_value=64, value=8, step=2)
+    storage_capacity = st.number_input("Kapasitas Penyimpanan (GB)", min_value=128, max_value=2048, value=512, step=128)
+    screen_size = st.number_input("Ukuran Layar (inci)", min_value=10.0, max_value=20.0, value=15.6, step=0.1)
+    weight = st.number_input("Berat (kg)", min_value=0.5, max_value=5.0, value=2.0, step=0.1)
+
+    if st.button("Prediksi Harga"):
+        user_input = scaler.transform([[processor_speed, ram_size, storage_capacity, screen_size, weight]])
+        predicted_price = model.predict(user_input)
+        st.write(f"Prediksi Harga Laptop: **${predicted_price[0]:,.2f}**")
+
+# Menu: About Us
+elif menu == "About Us":
+    st.subheader("Tim Kami")
+    cols = st.columns(4)
+    for idx, path in enumerate(image_paths):
+        image = Image.open(path)
+        size = (min(image.width, image.height),) * 2
+        mask = Image.new('L', size, 0)
+        draw = ImageDraw.Draw(mask)
+        draw.ellipse((0, 0) + size, fill=255)
+        image_circle = ImageOps.fit(image, size, centering=(0.5, 0.5))
+        image_circle.putalpha(mask)
+        with cols[idx]:
+            st.image(image_circle, caption=team_names[idx])
+
+# Menu: Documentation
+elif menu == "Documentation":
+    st.subheader("Dokumentasi dan Panduan")
+    st.write("""
+    **Cara Menggunakan Aplikasi**:
+    - Gunakan menu untuk memilih fungsi.
+    - Input spesifikasi untuk prediksi harga.
+    - Gunakan scatterplot untuk analisis visual.
+    """)
