@@ -1,7 +1,9 @@
-pandas
-numpy
-scikit-learn
-joblib
 streamlit
 seaborn
 matplotlib
+wordcloud
+scikit-learn
+pandas
+numpy
+joblib
+Pillow
