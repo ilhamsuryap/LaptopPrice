@@ -24,12 +24,12 @@ df_laptop = pd.read_csv("LaptopPrice.csv")
 def show_home():
     st.image("Cover.png")
     st.write("""
-        Selamat datang di aplikasi prediksi harga laptop! 
+        Selamat datang di aplikasi prediksi harga laptop!
         Aplikasi ini menggunakan data harga laptop berdasarkan berbagai fitur seperti ukuran RAM, kapasitas penyimpanan, dan kecepatan prosesor.
     """)
      # Menambahkan gambar logo brand laptop
     st.subheader("Brand Laptop Terkenal")
-    
+
     brand_images = {
         "Dell": "dell.png",
         "Asus": "asus.png",
@@ -98,8 +98,8 @@ def show_dataset():
 # 4. Prediksi Harga Laptop dengan pilihan metode model
 def show_predict_price():
     st.title("Prediksi Harga Laptop")
-    
-    # 10. Mendefinisikan variabel independent and dependent 
+
+    # 10. Mendefinisikan variabel independent and dependent
     X = df_laptop[['RAM_Size', 'Storage_Capacity', 'Weight', 'Processor_Speed', 'Screen_Size']]  # Menambahkan Screen_Size
     y = df_laptop['Price']
 
@@ -128,7 +128,7 @@ def show_predict_price():
     # 17. Menambahkan tombol "Predict"
     if st.button('Predict'):
         # Proses prediksi harga untuk spesifikasi laptop baru
-        new_laptop = pd.DataFrame({'RAM_Size': [ram], 'Storage_Capacity': [storage], 'Weight': [weight], 
+        new_laptop = pd.DataFrame({'RAM_Size': [ram], 'Storage_Capacity': [storage], 'Weight': [weight],
                                    'Processor_Speed': [processor_speed], 'Screen_Size': [screen_size]})  # Menambahkan Screen_Size
         predicted_price = model_regresi.predict(new_laptop)
         exchange_rate_ruble_to_idr = 152.02
@@ -164,13 +164,13 @@ def show_about():
     st.header("Kenapa Memakai Metode Linear Regression dan Random Forest?")
     st.markdown("""
         <div style="text-align: justify;">
-        Linear Regression dipilih karena kemudahan implementasi dan interpretasi. Sebagai model yang sederhana, linear regression memprediksi hubungan linier antara 
-        variabel input dan output. Ini sangat berguna ketika data memiliki hubungan yang jelas dan sederhana, seperti memprediksi harga berdasarkan fitur-fitur yang 
-        diketahui, seperti ukuran RAM atau penyimpanan. Keunggulannya terletak pada efisiensi komputasi dan kemampuannya untuk memberikan gambaran umum dengan hasil 
+        Linear Regression dipilih karena kemudahan implementasi dan interpretasi. Sebagai model yang sederhana, linear regression memprediksi hubungan linier antara
+        variabel input dan output. Ini sangat berguna ketika data memiliki hubungan yang jelas dan sederhana, seperti memprediksi harga berdasarkan fitur-fitur yang
+        diketahui, seperti ukuran RAM atau penyimpanan. Keunggulannya terletak pada efisiensi komputasi dan kemampuannya untuk memberikan gambaran umum dengan hasil
         yang mudah dipahami.
-        
-        Random Forest dipilih karena kemampuannya untuk menangani data yang lebih kompleks dan hubungan non-linier. Sebagai metode ensemble yang menggabungkan banyak 
-        pohon keputusan, random forest dapat menangani interaksi antar fitur dengan lebih baik, bahkan ketika hubungan antar variabel tidak linier. Selain itu, ia 
+
+        Random Forest dipilih karena kemampuannya untuk menangani data yang lebih kompleks dan hubungan non-linier. Sebagai metode ensemble yang menggabungkan banyak
+        pohon keputusan, random forest dapat menangani interaksi antar fitur dengan lebih baik, bahkan ketika hubungan antar variabel tidak linier. Selain itu, ia
         memiliki keunggulan dalam mengurangi overfitting dan memberikan prediksi yang lebih stabil dan akurat pada dataset yang lebih besar dan beragam.
         </div>
     """, unsafe_allow_html=True)
@@ -179,10 +179,10 @@ def show_about():
     st.markdown("""
         <div style="text-align: justify;">
         Linear Regression lebih cocok untuk masalah yang mempunyai hubungan linier sederhana antara variabel input dan output, dan lebih mudah diinterpretasikan.
-        Random Forest adalah model ensemble yang lebih kuat dan fleksibel untuk menangani data yang lebih kompleks dengan interaksi non-linier, serta lebih robust 
+        Random Forest adalah model ensemble yang lebih kuat dan fleksibel untuk menangani data yang lebih kompleks dengan interaksi non-linier, serta lebih robust
         terhadap overfitting.
-        
-        Dalam konteks aplikasi prediksi harga laptop, Linear Regression lebih cocok jika harga laptop dipengaruhi oleh faktor-faktor yang memiliki hubungan linier, 
+
+        Dalam konteks aplikasi prediksi harga laptop, Linear Regression lebih cocok jika harga laptop dipengaruhi oleh faktor-faktor yang memiliki hubungan linier,
         sementara Random Forest dapat memberikan hasil yang lebih baik ketika ada banyak interaksi kompleks antar faktor seperti RAM, penyimpanan, dan spesifikasi lainnya.
         </div>
     """, unsafe_allow_html=True)
@@ -190,19 +190,19 @@ def show_about():
     st.header("MAE (Mean Absolute Error), MSE (Mean Squared Error), dan RMSE (Root Mean Squared Error)")
     st.markdown("""
         <div style="text-align: justify;">
-        MAE (Mean Absolute Error), MSE (Mean Squared Error), dan RMSE (Root Mean Squared Error) adalah metrik evaluasi yang digunakan untuk mengukur seberapa baik model 
+        MAE (Mean Absolute Error), MSE (Mean Squared Error), dan RMSE (Root Mean Squared Error) adalah metrik evaluasi yang digunakan untuk mengukur seberapa baik model
         memprediksi data. Ketika Anda menggunakan Linear Regression dan Random Forest, perubahan nilai metrik ini terjadi karena perbedaan dalam cara kedua model bekerja.
-        
-        1. Linear Regression: Model ini mengasumsikan adanya hubungan linier antara fitur dan target. Oleh karena itu, ketika data tidak benar-benar linier atau 
+
+        1. Linear Regression: Model ini mengasumsikan adanya hubungan linier antara fitur dan target. Oleh karena itu, ketika data tidak benar-benar linier atau
         terdapat banyak interaksi antar fitur, model ini mungkin tidak dapat menangkap pola yang lebih kompleks. Akibatnya, prediksi yang dihasilkan mungkin lebih jauh
-        dari nilai sebenarnya, menghasilkan nilai MAE, MSE, dan RMSE yang lebih tinggi. Linear regression cenderung lebih baik jika hubungan antara variabel input dan 
+        dari nilai sebenarnya, menghasilkan nilai MAE, MSE, dan RMSE yang lebih tinggi. Linear regression cenderung lebih baik jika hubungan antara variabel input dan
         output benar-benar linier.
-        2. Random Forest: Sebaliknya, Random Forest lebih fleksibel karena merupakan metode ensemble yang menggabungkan banyak pohon keputusan. Model ini dapat menangani 
-        hubungan non-linier dan interaksi kompleks antar fitur. Oleh karena itu, Random Forest biasanya menghasilkan prediksi yang lebih akurat pada dataset yang lebih 
+        2. Random Forest: Sebaliknya, Random Forest lebih fleksibel karena merupakan metode ensemble yang menggabungkan banyak pohon keputusan. Model ini dapat menangani
+        hubungan non-linier dan interaksi kompleks antar fitur. Oleh karena itu, Random Forest biasanya menghasilkan prediksi yang lebih akurat pada dataset yang lebih
         kompleks atau yang memiliki hubungan tidak linier, yang mengarah pada nilai MAE, MSE, dan RMSE yang lebih rendah dibandingkan dengan linear regression. Random
         Forest juga lebih tahan terhadap overfitting karena menggabungkan prediksi dari banyak pohon.
-        
-        Secara umum, MAE, MSE, dan RMSE cenderung lebih rendah pada Random Forest dibandingkan Linear Regression ketika data memiliki hubungan yang kompleks dan tidak linier, karena 
+
+        Secara umum, MAE, MSE, dan RMSE cenderung lebih rendah pada Random Forest dibandingkan Linear Regression ketika data memiliki hubungan yang kompleks dan tidak linier, karena
         kemampuan Random Forest dalam menangani interaksi antar fitur yang lebih baik.
         </div>
     """, unsafe_allow_html=True)
@@ -242,7 +242,7 @@ def tentang_kami():
     # Menampilkan gambar tim dalam bentuk lingkaran dengan orientasi yang benar
     for idx, path in enumerate(image_paths):
         image = Image.open(path)
-        
+
         # Memperbaiki orientasi gambar
         try:
             for orientation in ExifTags.TAGS.keys():
@@ -258,7 +258,7 @@ def tentang_kami():
         except (AttributeError, KeyError, IndexError):
             # Jika gambar tidak memiliki data EXIF, lewati perbaikan orientasi
             pass
-        
+
         size = (min(image.width, image.height),) * 2
         mask = Image.new('L', size, 0)
         draw = ImageDraw.Draw(mask)
@@ -298,7 +298,7 @@ def dokumentasi():
     st.header("Panduan Penggunaan Aplikasi Prediksi Harga Laptop")
     st.markdown("""
         <div style='text-align: justify;'>
-        Selamat datang di Aplikasi Prediksi Harga Laptop! Aplikasi ini dirancang untuk membantu Anda memprediksi harga laptop berdasarkan spesifikasi teknis yang Anda 
+        Selamat datang di Aplikasi Prediksi Harga Laptop! Aplikasi ini dirancang untuk membantu Anda memprediksi harga laptop berdasarkan spesifikasi teknis yang Anda
         masukkan. Berikut adalah panduan lengkap mengenai cara menggunakan aplikasi ini:
         </div>
     """, unsafe_allow_html=True)
@@ -436,7 +436,7 @@ def show_visualisasi_data():
         plt.figure(figsize=(10, 6))
         sns.histplot(df_laptop[y_column], bins=30, kde=True)
         st.pyplot(plt)
-        
+
 # Menambahkan menu Visualisasi Data di sidebar
 menu = st.sidebar.selectbox("Pilih Menu", ["Beranda", "Dataset", "Prediksi Harga Laptop", "Tentang Aplikasi","Visualisasi Data", "Dokumentasi", "Tentang Kami", ])
 
@@ -455,4 +455,3 @@ elif menu == "Dokumentasi":
     dokumentasi()
 elif menu == "Visualisasi Data":
     show_visualisasi_data()
-
