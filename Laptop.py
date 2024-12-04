@@ -35,10 +35,7 @@ if menu == "Overview":
     st.write(f"Total baris dalam dataset: {df.shape[0]}")  # Menampilkan total baris dalam dataset
     st.dataframe(df)  # Menampilkan seluruh dataset dalam format interaktif
     st.write("Shape dari dataset:", df.shape)  # Menampilkan dimensi dataset (baris dan kolom)
-    st.write("Informasi Kolom:")
-    st.write(df.info())  # Menampilkan informasi tentang kolom dataset (tipe data, non-null values)
-    st.write("Nilai yang hilang dalam dataset:")
-    st.write(df.isnull().sum())  # Menampilkan jumlah nilai yang hilang (null) pada setiap kolom
+
 
     import streamlit as st
 
@@ -201,26 +198,7 @@ elif menu == "Prediction":
 # Menu: About Us - Menampilkan informasi pengembang
 elif menu == "About Us":
     st.title("About Us")
-    st.write("""
-    Selamat datang di aplikasi Machine Learning LaptopPrice!
-    
-    Aplikasi ini dirancang untuk membantu pengguna memprediksi harga laptop berdasarkan berbagai fitur 
-    menggunakan algoritma machine learning. Tujuan kami adalah untuk memberikan prediksi harga yang akurat
-    dan bermanfaat, agar pengguna dapat membuat keputusan pembelian yang lebih bijak.
 
-    **Fitur-fitur aplikasi kami meliputi:**
-    - **Pemodelan Prediktif:** Menggunakan teknik machine learning canggih untuk memprediksi harga laptop.
-    - **Antarmuka Ramah Pengguna:** Antarmuka yang mudah dinavigasi sehingga memudahkan prediksi harga.
-    - **Visualisasi Data:** Grafik dan bagan yang mendetail untuk membantu pengguna memahami tren dan pola harga.
-
-    **Tentang Tim Kami:**
-    Tim kami terdiri dari ilmuwan data dan insinyur perangkat lunak yang berdedikasi untuk membuat teknologi yang
-    bermanfaat dan mudah diakses untuk semua orang. Kami percaya pada kekuatan machine learning untuk mengubah 
-    cara kita membuat keputusan dan berharap aplikasi ini dapat memberikan nilai tambah pada pengalaman pembelian 
-    laptop Anda.
-    
-    Terima kasih telah menggunakan aplikasi kami!
-    """)
 
     st.subheader("Tim Kami")
 
