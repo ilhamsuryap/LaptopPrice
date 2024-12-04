@@ -22,7 +22,7 @@ df_laptop = pd.read_csv("LaptopPrice.csv")
 
 # 2. Menampilkan informasi aplikasi
 def show_home():
-    st.title("Aplikasi Prediksi Harga Laptop")
+    st.image("Cover.png")
     st.write("""
         Selamat datang di aplikasi prediksi harga laptop! 
         Aplikasi ini menggunakan data harga laptop berdasarkan berbagai fitur seperti ukuran RAM, kapasitas penyimpanan, dan kecepatan prosesor.
@@ -131,20 +131,25 @@ def show_predict_price():
         new_laptop = pd.DataFrame({'RAM_Size': [ram], 'Storage_Capacity': [storage], 'Weight': [weight], 
                                    'Processor_Speed': [processor_speed], 'Screen_Size': [screen_size]})  # Menambahkan Screen_Size
         predicted_price = model_regresi.predict(new_laptop)
-        st.write(f"Prediksi harga untuk laptop dengan spesifikasi tersebut: ${predicted_price[0]:.2f}")
+        exchange_rate_ruble_to_idr = 152.02
+
+        st.write(f"Prediksi harga untuk laptop dengan spesifikasi tersebut dalam rubel Rusia: ₽{predicted_price[0]:,.2f}")
+
+        # Konversi ke IDR
+        predicted_price_idr = predicted_price[0] * exchange_rate_ruble_to_idr
+        st.write(f"Prediksi harga dalam rupiah: Rp{predicted_price_idr:,.2f}")
 
         # 18. Mengevaluasi model setelah prediksi harga
         model_regresi_pred = model_regresi.predict(X_test)
         mae = mean_absolute_error(y_test, model_regresi_pred)
         mse = mean_squared_error(y_test, model_regresi_pred)
         rmse = np.sqrt(mse)
-        
+
         # Menampilkan evaluasi model setelah prediksi harga
         st.subheader("Evaluasi Model:")
         st.write(f"MAE: {mae:.2f}")
         st.write(f"MSE: {mse:.2f}")
         st.write(f"RMSE: {rmse:.2f}")
-
 
 # 5. Tentang Aplikasi
 def show_about():
