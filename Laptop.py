@@ -42,6 +42,21 @@ image = Image.open('laptop.png')
 st.sidebar.image(image)
 menu = st.sidebar.selectbox("Menu", ["Overview", "Data Visualization", "Prediction", "About Us"])
 
+st.markdown(
+    """
+    <style>
+        /* Mengubah background pada kontainer utama Streamlit */
+        .stSidebar {
+            background: linear-gradient(to bottom,  #ADD8E6, #FFFFFF);
+            border: 2px solid silver;   /* Border putih */
+            padding: 10px;            /* Spasi di dalam sidebar */
+            border-radius: 10px;      /* Membuat sudut border melengkung */
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # Fungsi untuk memuat dataset dan menyimpannya di cache
 @st.cache_data
 def load_data():
