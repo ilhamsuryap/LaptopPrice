@@ -13,7 +13,9 @@ import streamlit as st
 image_paths = ["karim.jpg", "ilham.jpg", "tyo.JPG", "lovvy.JPG"]
 team_names = ["Miftahul Karim", "Ilham Surya", "Bagus Prasetyo", "Putri Arensya"]
 
-# Judul aplikasi web
+
+image = Image.open('laptop.png')
+st.set_page_config(page_title="LaptopPrice", page_icon=image)# Judul aplikasi web
 st.title("Aplikasi Prediksi Harga Laptop")
 
 # Menu sidebar untuk memilih antara Overview, Data Visualization, atau Prediction
