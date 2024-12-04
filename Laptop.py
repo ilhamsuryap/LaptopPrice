@@ -1,218 +1,232 @@
+import streamlit as st
+import seaborn as sns
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud, STOPWORDS
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_absolute_error, mean_squared_error
 import pandas as pd
 import numpy as np
 import joblib
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import LabelEncoder
-import seaborn as sns
-import matplotlib.pyplot as plt
 from PIL import Image, ImageOps, ImageDraw, ExifTags
-import streamlit as st
+import matplotlib.pyplot as plt
+from sklearn.ensemble import RandomForestRegressor  # Import RandomForestRegressor
+
 
 # Path gambar tim dan nama anggota tim
 image_paths = ["karim.jpg", "ilham.jpg", "tyo.JPG", "lovvy.JPG"]
 team_names = ["Miftahul Karim", "Ilham Surya", "Bagus Prasetyo", "Putri Arensya"]
 
+# 1. Menentukan dan menampilkan dataset yang akan dipakai pada sebuah dataframe
+df_laptop = pd.read_csv("LaptopPrice.csv")
 
-image = Image.open('laptop.png')
-st.set_page_config(page_title="LaptopPrice", page_icon=image)# Judul aplikasi web
-
-col1, col2 = st.columns([1, 4])
-with col1:
-    image = Image.open('blogger.png')
-    st.image(image, use_container_width=True)
-with col2:
+# 2. Menampilkan informasi aplikasi
+def show_home():
     st.title("Aplikasi Prediksi Harga Laptop")
-
-# Menu sidebar untuk memilih antara Overview, Data Visualization, atau Prediction
-image = Image.open('laptop.png')
-st.sidebar.image(image)
-menu = st.sidebar.selectbox("Menu", ["Overview", "Data Visualization", "Prediction", "About Us"])
-
-# Fungsi untuk memuat dataset dan menyimpannya di cache
-@st.cache_data
-def load_data():
-    # Membaca dataset dari file CSV
-    df = pd.read_csv("LaptopPrice.csv")
-    return df
-
-# Memuat data ke dalam dataframe
-df = load_data()
-
-# Menu: Overview - Menampilkan gambaran umum dataset
-if menu == "Overview":
-    st.subheader("Gambaran Dataset")
-    st.write(f"Total baris dalam dataset: {df.shape[0]}")  # Menampilkan total baris dalam dataset
-    st.dataframe(df)  # Menampilkan seluruh dataset dalam format interaktif
-    st.write("Shape dari dataset:", df.shape)  # Menampilkan dimensi dataset (baris dan kolom)
-
-
-    import streamlit as st
-
-    st.title("Overview Aplikasi Prediksi Harga Laptop")
-
-    st.subheader("1. Tentang Aplikasi")
     st.write("""
-    Aplikasi ini dirancang untuk membantu pengguna memprediksi harga laptop berdasarkan spesifikasi teknisnya menggunakan algoritma Machine Learning. 
-    Selain itu, aplikasi menyediakan visualisasi data interaktif untuk memahami pola harga yang ada dalam dataset.
+        Selamat datang di aplikasi prediksi harga laptop! 
+        Aplikasi ini menggunakan data harga laptop berdasarkan berbagai fitur seperti ukuran RAM, kapasitas penyimpanan, dan kecepatan prosesor.
     """)
-
-    st.subheader("2. Teknologi Machine Learning yang Digunakan")
-    st.write("""
-    Aplikasi ini menggunakan algoritma:
-    - **Linear Regression**: Untuk memprediksi harga laptop berdasarkan data yang dimasukkan oleh pengguna.
-    - Model dilatih menggunakan dataset laptop untuk memahami hubungan antara spesifikasi teknis dan harga.
-    """)
-
-    st.subheader("3. Jenis Grafik yang Tersedia")
-    st.write("""
-    Aplikasi ini menyediakan berbagai jenis visualisasi untuk membantu analisis data:
-    - **Barplot**: Untuk membandingkan nilai antar fitur.
-    - **Lineplot**: Untuk melihat tren data secara kronologis.
-    - **Scatterplot**: Untuk menganalisis hubungan antar variabel.
-    - **Histogram**: Untuk melihat distribusi data.
-    - **Boxplot**: Untuk menganalisis persebaran data serta mengidentifikasi outlier.
-    """)
-
-    st.subheader("4. Cara Mengoperasikan Aplikasi")
-    st.write("""
-    Langkah-langkah menggunakan aplikasi ini:
-    1. Masukkan spesifikasi laptop (misalnya: kecepatan prosesor, RAM, penyimpanan).
-    2. Klik tombol prediksi untuk mendapatkan estimasi harga laptop.
-    3. Gunakan fitur visualisasi untuk memahami pola data secara interaktif.
-    """)
-
-    st.subheader("5. Fitur Aplikasi")
-    st.write("""
-    Aplikasi ini memiliki beberapa fitur utama:
-    - **Prediksi Harga Laptop**: Memberikan estimasi harga berdasarkan input spesifikasi.
-    - **Visualisasi Data**: Menyediakan grafik interaktif untuk memahami pola dan hubungan antar variabel.
-    - **Deskripsi Dataset**: Menampilkan informasi tentang dataset yang digunakan.
-    - **Antarmuka yang Mudah Digunakan**: Dibangun menggunakan Streamlit untuk pengalaman pengguna yang intuitif.
-    """)
-
-    st.subheader("6. Dataset yang digunakan")
-    st.write("""
-    Dataset ini menggunakan dataset dari [Kaggle](https://www.kaggle.com/datasets/mrsimple07/laptoppriceprediction).  
-    Dataset tersebut dipilih karena:
-    - Memuat informasi yang relevan, seperti prosesor, RAM, penyimpanan, dan harga laptop.
-    - Cocok untuk analisis pola harga dan membangun model Machine Learning.
-    - Memiliki cakupan data sampai dengan 1000 baris data.
-    """)
-
-# Menu: Data Visualization - Menampilkan visualisasi data
-elif menu == "Data Visualization":
-    st.subheader("Visualisasi Data")
-
-    # Pilih kolom untuk sumbu X dan Y untuk visualisasi
-    x_col = st.selectbox("Pilih kolom X-axis", df.columns)
-    y_col = st.selectbox("Pilih kolom Y-axis", df.columns)
-
-    # Pilih jenis plot yang akan ditampilkan
-    plot_type = st.selectbox("Pilih jenis plot", ["Barplot", "Lineplot", "Boxplot", "Scatterplot", "Histogram"])
-
-    # Membuat plot berdasarkan pilihan pengguna
-    fig, ax = plt.subplots()
-    if plot_type == "Barplot":
-        sns.barplot(data=df, x=x_col, y=y_col, ax=ax)  # Membuat barplot
-        explanation = (f"Barplot ini menunjukkan hubungan antara {x_col} dan {y_col}. "
-                       f"Setiap bar mewakili nilai {x_col}, dan tinggi bar menggambarkan nilai rata-rata {y_col}.")
-        
-    elif plot_type == "Lineplot":
-        sns.lineplot(data=df, x=x_col, y=y_col, ax=ax)  # Membuat lineplot
-        explanation = (f"Lineplot ini menggambarkan tren {y_col} terhadap {x_col}. "
-                       f"Garis yang terbentuk menunjukkan perubahan nilai {y_col} seiring dengan perubahan {x_col}.")
-        
-    elif plot_type == "Boxplot":
-        sns.boxplot(data=df, x=x_col, y=y_col, ax=ax)  # Membuat boxplot
-        explanation = (f"Boxplot ini digunakan untuk menunjukkan distribusi {y_col} untuk setiap kategori {x_col}. "
-                       f"Boxplot membantu untuk mengidentifikasi outlier dan persebaran data.")
-        
-    elif plot_type == "Scatterplot":
-        sns.scatterplot(data=df, x=x_col, y=y_col, ax=ax)  # Membuat scatterplot
-        explanation = (f"Scatterplot ini menunjukkan hubungan antara {x_col} dan {y_col}. "
-                       f"Setiap titik mewakili pasangan nilai dari kedua variabel tersebut.")
-        
-    elif plot_type == "Histogram":
-        sns.histplot(data=df, x=x_col, ax=ax)  # Membuat histogram
-        explanation = (f"Histogram ini menggambarkan distribusi frekuensi nilai {x_col}. S"
-                       f"umbu X menunjukkan rentang nilai, dan sumbu Y menunjukkan jumlah data yang jatuh dalam rentang tersebut.")
-        
-
-    # Menampilkan plot yang telah dibuat
-    st.pyplot(fig)
-
-    # Menampilkan penjelasan untuk grafik yang dipilih
-    st.write(explanation)
+     # Menambahkan gambar logo brand laptop
+    st.subheader("Brand Laptop Terkenal")
     
+    brand_images = {
+        "Dell": "dell.png",
+        "Asus": "asus.png",
+        "Acer": "acer.png",
+        "Lenovo": "lenovo.png",
+        "HP": "hp.png"
+    }
+
+    # Menampilkan gambar brand
+    for brand, image_url in brand_images.items():
+        st.image(image_url, caption=brand, width=600)
+
+# 3. Menu dataset
+def show_dataset():
+    # Membaca dataset LaptopPrice.csv
+    try:
+        df_laptop = pd.read_csv('LaptopPrice.csv')
+    except FileNotFoundError:
+        st.error("File 'LaptopPrice.csv' tidak ditemukan. Pastikan file ada di direktori yang sesuai.")
+        return
+
+    st.title("Dataset Laptop")
+    st.write("Berikut adalah semua data yang terdapat dalam dataset:")
+
+    # Menampilkan seluruh data
+    st.dataframe(df_laptop)  # Menampilkan semua data di tabel interaktif
+
+    # Statistik Deskriptif
+    st.subheader("Statistik Deskriptif:")
+    st.write(df_laptop.describe())
+
+    # Cek Data Kosong
+    st.subheader("Cek Data Kosong:")
+    st.write(df_laptop.isnull().sum())
+
+    # Distribusi Harga Laptop
+    st.subheader("Distribusi Harga Laptop:")
+    if 'Price' in df_laptop.columns:
+        plt.figure(figsize=(10, 4))
+        sns.histplot(df_laptop['Price'], bins=30, kde=True)
+        plt.xlabel("Price")
+        plt.ylabel("Frequency")
+        plt.title("Distribusi Harga Laptop")
+        st.pyplot(plt)
+    else:
+        st.write("Kolom 'Price' tidak ditemukan dalam dataset.")
+
+    # Word Cloud untuk Brand Laptop
+    st.subheader("Word Cloud untuk Brand Laptop:")
+    if 'Brand' in df_laptop.columns:
+        text = " ".join(df_laptop['Brand'].astype(str))
+        wordcloud = WordCloud(
+            width=800, height=400, background_color='white', stopwords=STOPWORDS
+        ).generate(text)
+        plt.figure(figsize=(8, 8), facecolor=None)
+        plt.imshow(wordcloud)
+        plt.axis("off")
+        plt.tight_layout(pad=0)
+        st.pyplot(plt)
+    else:
+        st.write("Kolom 'Brand' tidak ditemukan dalam dataset.")
 
 
-# Menu: Prediction - Menampilkan fitur untuk prediksi harga laptop
-elif menu == "Prediction":
-    st.subheader("Prediksi Harga Laptop")
 
-    # Mendefinisikan kolom numerik yang akan digunakan sebagai fitur
-    numeric_cols = ['Processor_Speed', 'RAM_Size', 'Storage_Capacity', 'Screen_Size', 'Weight']
-    target_col = 'Price'  # Kolom target untuk prediksi harga laptop
+# 4. Prediksi Harga Laptop dengan pilihan metode model
+# 4. Prediksi Harga Laptop dengan pilihan metode model
+def show_predict_price():
+    st.title("Prediksi Harga Laptop")
+    
+    # 10. Mendefinisikan variabel independent and dependent 
+    X = df_laptop[['RAM_Size', 'Storage_Capacity', 'Weight', 'Processor_Speed', 'Screen_Size']]  # Menambahkan Screen_Size
+    y = df_laptop['Price']
 
-    # Mengkodekan kolom kategorikal (jika ada)
-    for column in df.columns:
-        if df[column].dtype == 'object':
-            le = LabelEncoder()  # Membuat objek LabelEncoder
-            df[column] = le.fit_transform(df[column])  # Mengkodekan data kategorikal menjadi angka
-
-    # Memisahkan fitur dan target
-    X = df[numeric_cols]  # Fitur (kolom numerik)
-    y = df[target_col]  # Target (harga laptop)
-
-    # Membagi data menjadi data latih (train) dan data uji (test)
+    # 11. Membagi data menjadi data training dan testing
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    # Melatih model regresi linear
-    model = LinearRegression()
-    model.fit(X_train, y_train)  # Melatih model dengan data latih (tanpa scaling)
+    # 14. Pilihan metode model
+    model_choice = st.selectbox("Pilih Metode Model:", ["Linear Regression", "Random Forest"])
 
-    # Simpan model hanya sekali (jika belum ada)
-    if 'model_prediksi_harga_laptop.sav' not in st.session_state:
-        joblib.dump(model, "model_prediksi_harga_laptop.sav")  # Menyimpan model ke file
-        st.session_state['model_prediksi_harga_laptop.sav'] = True  # Tandai bahwa model sudah disimpan
-        st.write("Model disimpan!")  # Memberikan notifikasi bahwa model telah disimpan
+    # 15. Membuat dan melatih model berdasarkan pilihan
+    if model_choice == "Linear Regression":
+        model_regresi = LinearRegression()
+        model_regresi.fit(X_train, y_train)
+    elif model_choice == "Random Forest":
+        model_regresi = RandomForestRegressor(n_estimators=100, random_state=42)
+        model_regresi.fit(X_train, y_train)
 
-    # Input pengguna untuk spesifikasi laptop yang akan diprediksi
-    st.write("Masukkan spesifikasi laptop yang anda inginkan :")
-    processor_speed = st.number_input("Kecepatan Prosesor (GHz)", min_value=1.0, max_value=5.0, value=2.5, step=0.1)
-    ram_size = st.number_input("Ukuran RAM (GB)", min_value=2, max_value=64, value=8, step=2)
-    storage_capacity = st.number_input("Kapasitas Penyimpanan (GB)", min_value=128, max_value=2048, value=512, step=128)
-    screen_size = st.number_input("Ukuran Layar (inci)", min_value=10.0, max_value=20.0, value=15.6, step=0.1)
-    weight = st.number_input("Berat (kg)", min_value=0.5, max_value=5.0, value=2.0, step=0.1)
+    # 16. Menerima input spesifikasi laptop baru
+    st.subheader("Masukkan Spesifikasi Laptop Baru:")
+    ram = st.number_input("Ukuran RAM (GB):", min_value=2, max_value=64, value=8, step=2)
+    storage = st.number_input("Kapasitas Penyimpanan (GB):", min_value=128, max_value=2048, value=512, step=128)
+    weight = st.number_input("Berat Laptop (kg):", min_value=0.5, max_value=5.0, value=2.0, step=0.1)
+    processor_speed = st.number_input("Kecepatan Prosesor (GHz):", min_value=1.0, max_value=5.0, value=2.5, step=0.1)
+    screen_size = st.number_input("Ukuran Layar (inci):", min_value=10.0, max_value=18.0, value=15.6)  # Input untuk Screen_Size
 
-    # Memuat model yang sudah disimpan
-    model = joblib.load("model_prediksi_harga_laptop.sav")
+    # 17. Menambahkan tombol "Predict"
+    if st.button('Predict'):
+        # Proses prediksi harga untuk spesifikasi laptop baru
+        new_laptop = pd.DataFrame({'RAM_Size': [ram], 'Storage_Capacity': [storage], 'Weight': [weight], 
+                                   'Processor_Speed': [processor_speed], 'Screen_Size': [screen_size]})  # Menambahkan Screen_Size
+        predicted_price = model_regresi.predict(new_laptop)
+        st.write(f"Prediksi harga untuk laptop dengan spesifikasi tersebut: ${predicted_price[0]:.2f}")
 
-    # Prediksi harga ketika tombol ditekan
-    if st.button("Prediksi Harga"):
-        # Input pengguna langsung digunakan tanpa skalasi
-        user_input = np.array([[processor_speed, ram_size, storage_capacity, screen_size, weight]])  # Menggunakan input pengguna langsung
-        predicted_price = model.predict(user_input)  # Melakukan prediksi harga menggunakan model
-
-        st.write(f"Prediksi Harga Laptop: ${predicted_price[0]:,.2f}")  # Menampilkan hasil prediksi harga
-
-        col1, col2 = st.columns([2, 1])
-        with col2:
-            image = Image.open('data.png')
-            st.image(image, use_container_width=True)
-            st.write(f"Tabel di samping adalah Tabel prediksi yang digunakan untuk prediksi harga Laptop berdasarkan spesifikasi yang dipilih: kecepatan prosesor {processor_speed} GHz, RAM {ram_size} GB, kapasitas penyimpanan {storage_capacity} GB, ukuran layar {screen_size} inci, dan berat {weight} kg.")
+        # 18. Mengevaluasi model setelah prediksi harga
+        model_regresi_pred = model_regresi.predict(X_test)
+        mae = mean_absolute_error(y_test, model_regresi_pred)
+        mse = mean_squared_error(y_test, model_regresi_pred)
+        rmse = np.sqrt(mse)
         
-        with col1:
-            fig, ax = plt.subplots()
-            ax.plot(["Prediksi Harga"], predicted_price, marker="o", color="b", label="Harga Prediksi")
-            ax.set_ylabel("Harga Laptop ($)")
-            ax.set_title("Prediksi Harga Laptop")
-            ax.legend()
-            st.pyplot(fig)
+        # Menampilkan evaluasi model setelah prediksi harga
+        st.subheader("Evaluasi Model:")
+        st.write(f"MAE: {mae:.2f}")
+        st.write(f"MSE: {mse:.2f}")
+        st.write(f"RMSE: {rmse:.2f}")
 
-# Menu: About Us - Menampilkan informasi pengembang
-elif menu == "About Us":
+
+# 5. Tentang Aplikasi
+def show_about():
+    st.title("Tentang Aplikasi")
+    st.markdown("""
+        <div style="text-align: justify;">
+        Aplikasi ini dirancang untuk memprediksi harga laptop berdasarkan spesifikasi teknis seperti ukuran RAM, kapasitas penyimpanan, berat, dan kecepatan prosesor.
+        Data yang digunakan berasal dari dataset harga laptop yang mencakup berbagai merek dan model laptop.
+        </div>
+    """, unsafe_allow_html=True)
+
+    st.header("Kenapa Memakai Metode Linear Regression dan Random Forest?")
+    st.markdown("""
+        <div style="text-align: justify;">
+        Linear Regression dipilih karena kemudahan implementasi dan interpretasi. Sebagai model yang sederhana, linear regression memprediksi hubungan linier antara 
+        variabel input dan output. Ini sangat berguna ketika data memiliki hubungan yang jelas dan sederhana, seperti memprediksi harga berdasarkan fitur-fitur yang 
+        diketahui, seperti ukuran RAM atau penyimpanan. Keunggulannya terletak pada efisiensi komputasi dan kemampuannya untuk memberikan gambaran umum dengan hasil 
+        yang mudah dipahami.
+        
+        Random Forest dipilih karena kemampuannya untuk menangani data yang lebih kompleks dan hubungan non-linier. Sebagai metode ensemble yang menggabungkan banyak 
+        pohon keputusan, random forest dapat menangani interaksi antar fitur dengan lebih baik, bahkan ketika hubungan antar variabel tidak linier. Selain itu, ia 
+        memiliki keunggulan dalam mengurangi overfitting dan memberikan prediksi yang lebih stabil dan akurat pada dataset yang lebih besar dan beragam.
+        </div>
+    """, unsafe_allow_html=True)
+
+    st.header("Perbedaan Memakai Metode Linear Regression dan Random Forest")
+    st.markdown("""
+        <div style="text-align: justify;">
+        Linear Regression lebih cocok untuk masalah yang mempunyai hubungan linier sederhana antara variabel input dan output, dan lebih mudah diinterpretasikan.
+        Random Forest adalah model ensemble yang lebih kuat dan fleksibel untuk menangani data yang lebih kompleks dengan interaksi non-linier, serta lebih robust 
+        terhadap overfitting.
+        
+        Dalam konteks aplikasi prediksi harga laptop, Linear Regression lebih cocok jika harga laptop dipengaruhi oleh faktor-faktor yang memiliki hubungan linier, 
+        sementara Random Forest dapat memberikan hasil yang lebih baik ketika ada banyak interaksi kompleks antar faktor seperti RAM, penyimpanan, dan spesifikasi lainnya.
+        </div>
+    """, unsafe_allow_html=True)
+
+    st.header("MAE (Mean Absolute Error), MSE (Mean Squared Error), dan RMSE (Root Mean Squared Error)")
+    st.markdown("""
+        <div style="text-align: justify;">
+        MAE (Mean Absolute Error), MSE (Mean Squared Error), dan RMSE (Root Mean Squared Error) adalah metrik evaluasi yang digunakan untuk mengukur seberapa baik model 
+        memprediksi data. Ketika Anda menggunakan Linear Regression dan Random Forest, perubahan nilai metrik ini terjadi karena perbedaan dalam cara kedua model bekerja.
+        
+        1. Linear Regression: Model ini mengasumsikan adanya hubungan linier antara fitur dan target. Oleh karena itu, ketika data tidak benar-benar linier atau 
+        terdapat banyak interaksi antar fitur, model ini mungkin tidak dapat menangkap pola yang lebih kompleks. Akibatnya, prediksi yang dihasilkan mungkin lebih jauh
+        dari nilai sebenarnya, menghasilkan nilai MAE, MSE, dan RMSE yang lebih tinggi. Linear regression cenderung lebih baik jika hubungan antara variabel input dan 
+        output benar-benar linier.
+        2. Random Forest: Sebaliknya, Random Forest lebih fleksibel karena merupakan metode ensemble yang menggabungkan banyak pohon keputusan. Model ini dapat menangani 
+        hubungan non-linier dan interaksi kompleks antar fitur. Oleh karena itu, Random Forest biasanya menghasilkan prediksi yang lebih akurat pada dataset yang lebih 
+        kompleks atau yang memiliki hubungan tidak linier, yang mengarah pada nilai MAE, MSE, dan RMSE yang lebih rendah dibandingkan dengan linear regression. Random
+        Forest juga lebih tahan terhadap overfitting karena menggabungkan prediksi dari banyak pohon.
+        
+        Secara umum, MAE, MSE, dan RMSE cenderung lebih rendah pada Random Forest dibandingkan Linear Regression ketika data memiliki hubungan yang kompleks dan tidak linier, karena 
+        kemampuan Random Forest dalam menangani interaksi antar fitur yang lebih baik.
+        </div>
+    """, unsafe_allow_html=True)
+
+    st.header("Penjelasan MAE (Mean Absolute Error), MSE (Mean Squared Error), dan RMSE (Root Mean Squared Error)")
+    st.markdown("""
+        <div style="text-align: justify;">
+       MSE, MAE, dan RMSE tidak berubah secara langsung ketika harga prediksi untuk laptop baru berubah. MSE (Mean Squared Error), MAE (Mean Absolute Error), dan RMSE (Root Mean Squared Error) mengukur kesalahan model dalam memprediksi data testing (data yang belum pernah dilihat oleh model).
+
+       1. MAE (Mean Absolute Error) mengukur rata-rata dari selisih absolut antara prediksi model dan nilai sebenarnya pada data testing.
+       2. MSE (Mean Squared Error) mengukur rata-rata dari kuadrat selisih antara prediksi model dan nilai sebenarnya pada data testing.
+       3. RMSE (Root Mean Squared Error) adalah akar kuadrat dari MSE dan juga mengukur kesalahan prediksi model.
+       Ketiga metrik ini mengukur kesalahan antara prediksi model terhadap data testing yang digunakan untuk evaluasi model, bukan hasil prediksi untuk laptop baru.
+
+       Mengapa MSE, MAE, dan RMSE Tidak Berubah Saat Prediksi Laptop Baru Berubah?
+       1. Metrik evaluasi (MAE, MSE, RMSE) dihitung berdasarkan data uji (X_test dan y_test) yang dipisahkan sebelumnya. Mereka hanya mengukur seberapa akurat model memprediksi data uji, bukan prediksi pada data baru yang dimasukkan oleh pengguna.
+       2. Prediksi pada laptop baru (misalnya, laptop dengan RAM 8GB, penyimpanan 384GB, dll) hanya akan menghasilkan harga prediksi dan tidak berhubungan langsung dengan kesalahan model terhadap data uji.
+       Jadi, meskipun harga prediksi berubah saat pengguna memasukkan spesifikasi laptop baru, metrik evaluasi tidak akan berubah kecuali Anda memprediksi kembali terhadap data uji dan menghitung ulang MAE, MSE, dan RMSE berdasarkan prediksi model terhadap data tersebut.
+
+       Cara Metrik Evaluasi Bisa Berubah:
+       Metrik evaluasi MAE, MSE, dan RMSE baru akan berubah jika Anda:
+
+       1. Menggunakan data baru untuk uji model (misalnya, data uji yang berbeda dari data sebelumnya).
+       2. Melatih ulang model dengan data pelatihan yang berbeda (misalnya, menggunakan data pelatihan yang lebih banyak atau lebih sedikit).
+       3. Mengubah model (misalnya, menggunakan model yang berbeda seperti Linear Regression vs Random Forest).
+       Namun, jika hanya spesifikasi laptop baru yang diubah, dan model yang sama serta data uji yang sama digunakan, metrik evaluasi tidak akan terpengaruh.
+        </div>
+    """, unsafe_allow_html=True)
+def tentang_kami():
     st.title("About Us")
     st.write("Aplikasi web ini dibuat oleh kelompok 2. Aplikasi ini bertujuan untuk menvisualisasikan dan menganalisis data Harga Laptop berdasarkan beberapa spesifikasi yang diberikan.")
 
@@ -273,3 +287,167 @@ elif menu == "About Us":
     feedback = st.text_area("Tulis komentar Anda di sini:")
     if st.button("Kirim Feedback"):
         st.write("Terima kasih atas feedback Anda!")
+
+# Menu: Documentation
+def dokumentasi():
+    st.header("Panduan Penggunaan Aplikasi Prediksi Harga Laptop")
+    st.markdown("""
+        <div style='text-align: justify;'>
+        Selamat datang di Aplikasi Prediksi Harga Laptop! Aplikasi ini dirancang untuk membantu Anda memprediksi harga laptop berdasarkan spesifikasi teknis yang Anda 
+        masukkan. Berikut adalah panduan lengkap mengenai cara menggunakan aplikasi ini:
+        </div>
+    """, unsafe_allow_html=True)
+
+    st.subheader("Navigasi Menu Utama")
+    st.markdown("""
+        <div style='text-align: justify;'>
+        Aplikasi ini memiliki beberapa menu yang dapat diakses melalui sidebar di sebelah kiri. Berikut adalah daftar menu beserta fungsinya:
+        <ul>
+            <li>Beranda</li>
+            <li>Dataset</li>
+            <li>Prediksi Harga Laptop</li>
+            <li>Visualisasi Data</li>
+            <li>Tentang Aplikasi</li>
+            <li>Tentang Kami</li>
+            <li>Dokumentasi</li>
+        </ul>
+        </div>
+    """, unsafe_allow_html=True)
+
+    st.subheader("1. Beranda")
+    st.markdown("""
+        <div style='text-align: justify;'>
+        Fungsi:
+        <ul>
+            <li>Menampilkan informasi umum tentang aplikasi.</li>
+            <li>Menampilkan logo dan gambar merek laptop terkenal.</li>
+        </ul>
+        </div>
+    """, unsafe_allow_html=True)
+
+    st.subheader("2. Dataset")
+    st.markdown("""
+        <div style='text-align: justify;'>
+        Fungsi:
+        <ul>
+            <li>Menampilkan seluruh dataset yang digunakan dalam aplikasi.</li>
+            <li>Menyediakan analisis dasar seperti statistik deskriptif, cek data kosong, distribusi harga, dan word cloud untuk merek laptop.</li>
+        </ul>
+        </div>
+    """, unsafe_allow_html=True)
+
+    st.subheader("3. Prediksi Harga Laptop")
+    st.markdown("""
+        <div style='text-align: justify;'>
+        Fungsi:
+        <ul>
+            <li>Memungkinkan pengguna untuk memprediksi harga laptop berdasarkan spesifikasi yang dimasukkan.</li>
+            <li>Mendukung dua metode model prediksi: Linear Regression dan Random Forest.</li>
+            <li>Menampilkan evaluasi model menggunakan metrik MAE, MSE, dan RMSE.</li>
+        </ul>
+        </div>
+    """, unsafe_allow_html=True)
+
+    st.subheader("4. Visualisasi Data")
+    st.markdown("""
+        <div style='text-align: justify;'>
+        Fungsi:
+        <ul>
+            <li>Menyediakan berbagai jenis grafik untuk menganalisis dan memahami data lebih mendalam.</li>
+            <li>Memungkinkan pengguna untuk memilih jenis grafik dan kolom yang ingin divisualisasikan.</li>
+        </ul>
+        </div>
+    """, unsafe_allow_html=True)
+
+    st.subheader("5. Tentang Aplikasi")
+    st.markdown("""
+        <div style='text-align: justify;'>
+        Fungsi:
+        <ul>
+            <li>Menjelaskan tujuan dan fitur utama dari aplikasi ini.</li>
+            <li>Memberikan pemahaman mengenai metode yang digunakan untuk prediksi harga.</li>
+        </ul>
+        </div>
+    """, unsafe_allow_html=True)
+
+    st.subheader("6. Tentang Kami")
+    st.markdown("""
+        <div style='text-align: justify;'>
+        Fungsi:
+        <ul>
+            <li>Memperkenalkan tim pengembang aplikasi.</li>
+            <li>Menampilkan gambar anggota tim.</li>
+            <li>Menyediakan informasi kontak dan feedback.</li>
+        </ul>
+        </div>
+    """, unsafe_allow_html=True)
+
+
+
+# Fungsi untuk menampilkan visualisasi data
+def show_visualisasi_data():
+    st.title("Visualisasi Data")
+
+    # Pilih jenis grafik
+    chart_type = st.selectbox("Pilih Jenis Grafik:", ["Barplot", "Lineplot", "Boxplot", "Scatterplot", "Histogram"])
+
+    # Pilih kolom untuk x dan y axis
+    x_column = st.selectbox("Pilih Kolom X:", ["Brand", "RAM_Size", "Storage_Capacity", "Weight", "Processor_Speed", "Screen_Size", "Price"])
+    y_column = st.selectbox("Pilih Kolom Y:", ["Brand", "RAM_Size", "Storage_Capacity", "Weight", "Processor_Speed", "Screen_Size", "Price"])
+
+    # Memastikan kolom yang dipilih tersedia dalam data
+    if x_column not in df_laptop.columns or y_column not in df_laptop.columns:
+        st.write("Kolom yang dipilih tidak ada dalam dataset.")
+        return
+
+    # Plot sesuai dengan pilihan
+    if chart_type == "Barplot":
+        st.subheader(f"Barplot: Distribusi {y_column} Berdasarkan {x_column}")
+        plt.figure(figsize=(10, 6))
+        sns.barplot(data=df_laptop, x=x_column, y=y_column, estimator=np.mean)
+        plt.xticks(rotation=45)
+        st.pyplot(plt)
+
+    elif chart_type == "Lineplot":
+        st.subheader(f"Lineplot: Perbandingan {y_column} dengan {x_column}")
+        plt.figure(figsize=(10, 6))
+        sns.lineplot(data=df_laptop, x=x_column, y=y_column)
+        st.pyplot(plt)
+
+    elif chart_type == "Boxplot":
+        st.subheader(f"Boxplot: Penyebaran {y_column} Berdasarkan {x_column}")
+        plt.figure(figsize=(10, 6))
+        sns.boxplot(data=df_laptop, x=x_column, y=y_column)
+        st.pyplot(plt)
+
+    elif chart_type == "Scatterplot":
+        st.subheader(f"Scatterplot: Hubungan Antara {x_column} dan {y_column}")
+        plt.figure(figsize=(10, 6))
+        sns.scatterplot(data=df_laptop, x=x_column, y=y_column)
+        st.pyplot(plt)
+
+    elif chart_type == "Histogram":
+        st.subheader(f"Histogram: Distribusi {y_column}")
+        plt.figure(figsize=(10, 6))
+        sns.histplot(df_laptop[y_column], bins=30, kde=True)
+        st.pyplot(plt)
+        
+# Menambahkan menu Visualisasi Data di sidebar
+menu = st.sidebar.selectbox("Pilih Menu", ["Beranda", "Dataset", "Prediksi Harga Laptop", "Tentang Aplikasi","Visualisasi Data", "Dokumentasi", "Tentang Kami", ])
+
+# Menampilkan konten berdasarkan menu yang dipilih
+if menu == "Beranda":
+    show_home()
+elif menu == "Dataset":
+    show_dataset()
+elif menu == "Prediksi Harga Laptop":
+    show_predict_price()
+elif menu == "Tentang Aplikasi":
+    show_about()
+elif menu == "Tentang Kami":
+    tentang_kami()
+elif menu == "Dokumentasi":
+    dokumentasi()
+elif menu == "Visualisasi Data":
+    show_visualisasi_data()
+
