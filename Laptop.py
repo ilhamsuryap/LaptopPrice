@@ -167,12 +167,12 @@ def show_predict_price():
 
         # Menampilkan evaluasi model setelah prediksi harga
         st.subheader("Evaluasi Model:")
-        st.write(f"MAE: {mae:.2f}")
-        st.write(f"MSE: {mse:.2f}")
-        st.write(f"RMSE: {rmse:.2f}")
+        st.write(f"MAE : {mae:.2f}")
+        st.write(f"MSE : {mse:.2f}")
+        st.write(f"RMSE : {rmse:.2f}")
         st.write(f"R² (R-squared): {r2_score:.2f}")
-        st.write(f"MAPE: {mape:.2f}%")
-        st.write(f"Akurasi: {accuracy:.2f}%")
+        st.write(f"MAPE : {mape:.2f}%")
+        st.write(f"Akurasi : {accuracy:.2f}%")
 
         # Grafik perbandingan harga asli dan harga prediksi
         comparison_df = pd.DataFrame({'Harga Asli': y_test, 'Harga Prediksi': model_regresi_pred})
@@ -288,6 +288,44 @@ def show_about():
     Model ini, berdasarkan evaluasi ini, sepertinya sangat efektif untuk memprediksi harga laptop berdasarkan fitur-fitur yang diberikan.
       </div>
     """, unsafe_allow_html=True)
+
+    st.header("Penjelasan tentang setiap jenis grafik yang dapat ditampilkan pada menu visualisasi data:")
+    st.markdown("""
+    <div style="text-align: justify; margin-left: 30px; margin-right: 30px;">
+    
+
+    1. **Barplot (Grafik Batang):**
+
+    - Barplot digunakan untuk menampilkan distribusi data numerik berdasarkan kategori. Pada grafik ini, setiap kategori diwakili oleh batang, dan panjang batang menunjukkan nilai dari data yang bersangkutan.
+    - Grafik ini berguna untuk membandingkan rata-rata atau total nilai di antara kategori tertentu.
+    - Contoh: Menampilkan rata-rata harga laptop berdasarkan merek.
+
+    2. **Lineplot (Grafik Garis):**
+
+    - Lineplot digunakan untuk menunjukkan hubungan antara dua variabel numerik dengan menggambar garis yang menghubungkan titik-titik data.
+    - Grafik ini sering digunakan untuk melihat tren atau perubahan data sepanjang waktu (misalnya waktu atau urutan).
+    - Contoh: Menampilkan perubahan harga laptop seiring dengan peningkatan ukuran RAM.
+
+    3. **Boxplot (Grafik Box atau Box-and-Whisker):**
+
+    - Boxplot digunakan untuk menggambarkan sebaran atau distribusi data numerik melalui lima angka ringkasan (minimum, kuartil pertama (Q1), median, kuartil ketiga (Q3), dan maksimum).
+    - Boxplot membantu melihat apakah ada pencilan (outliers) dalam data dan memberikan gambaran tentang rentang dan kepadatan data.
+    - Contoh: Menampilkan distribusi harga laptop berdasarkan merek tertentu.
+
+    4. **Scatterplot (Grafik Sebar):**
+
+    - Scatterplot digunakan untuk menggambarkan hubungan antara dua variabel numerik dengan menampilkan titik-titik data pada sumbu X dan Y.
+    - Grafik ini sangat berguna untuk melihat pola hubungan antara dua variabel, seperti korelasi positif atau negatif.
+    - Contoh: Menampilkan hubungan antara ukuran layar dan harga laptop.
+
+    5. **Histogram (Histogram):**
+
+    - Histogram digunakan untuk menampilkan distribusi frekuensi dari satu variabel numerik dengan membagi data ke dalam bin atau interval dan menghitung berapa banyak nilai yang jatuh ke dalam setiap bin.
+    - Histogram berguna untuk memahami distribusi data, apakah data terdistribusi normal, miring, atau terpusat pada nilai tertentu.
+    - Contoh: Menampilkan distribusi harga laptop di seluruh dataset.
+
+    </div>
+""", unsafe_allow_html=True)
 
 
     
