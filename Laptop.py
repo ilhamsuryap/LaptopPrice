@@ -109,23 +109,16 @@ def show_dataset():
 def show_predict_price():
     st.title("Prediksi Harga Laptop")
     
-    # 10. Mendefinisikan variabel independent and dependent 
+    # 10. Mendefinisikan variabel independent dan dependent
     X = df_laptop[['RAM_Size', 'Storage_Capacity', 'Weight', 'Processor_Speed', 'Screen_Size']]  # Menambahkan Screen_Size
     y = df_laptop['Price']
 
     # 11. Membagi data menjadi data training dan testing
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    # 14. Pilihan metode model
-    model_choice = st.selectbox("Pilih Metode Model:", ["Linear Regression", "Random Forest"])
-
-    # 15. Membuat dan melatih model berdasarkan pilihan
-    if model_choice == "Linear Regression":
-        model_regresi = LinearRegression()
-        model_regresi.fit(X_train, y_train)
-    elif model_choice == "Random Forest":
-        model_regresi = RandomForestRegressor(n_estimators=100, random_state=42)
-        model_regresi.fit(X_train, y_train)
+    # Membuat dan melatih model Linear Regression
+    model_regresi = LinearRegression()
+    model_regresi.fit(X_train, y_train)
 
     # 16. Menerima input spesifikasi laptop baru
     st.subheader("Masukkan Spesifikasi Laptop Baru:")
@@ -166,7 +159,7 @@ def show_predict_price():
         accuracy = 100 - mape  # Akurasi = 100% - MAPE
 
         # Menampilkan evaluasi model setelah prediksi harga
-        st.subheader("Evaluasi Model:")
+        st.subheader("Evaluasi Model Berdasarkan Prediksi:")
         st.write(f"MAE : {mae:.2f}")
         st.write(f"MSE : {mse:.2f}")
         st.write(f"RMSE : {rmse:.2f}")
@@ -179,6 +172,12 @@ def show_predict_price():
         st.subheader("Perbandingan Harga Asli dan Harga Prediksi:")
         st.line_chart(comparison_df)
 
+        # Evaluasi model menggunakan harga prediksi baru
+        st.subheader("Evaluasi Prediksi Berdasarkan Spesifikasi Baru:")
+        st.write(f"Prediksi harga laptop: Rp{predicted_price_idr:,.2f}")
+        
+        # Biasanya MAE, MSE, RMSE, dan lainnya adalah untuk mengukur performa pada data uji, bukan untuk satu titik spesifik.
+        # Namun, Anda bisa menggunakan hasil ini untuk memeriksa kesesuaian prediksi pada data baru.
 
 # 5. Tentang Aplikasi
 def show_about():
@@ -190,49 +189,26 @@ def show_about():
         </div>
     """, unsafe_allow_html=True)
 
-    st.header("Kenapa Memakai Metode Linear Regression dan Random Forest?")
+    st.header("Kenapa Memakai Metode Linear Regression?")
     st.markdown("""
         <div style="text-align: justify;">
-        Linear Regression dipilih karena kemudahan implementasi dan interpretasi. Sebagai model yang sederhana, linear regression memprediksi hubungan linier antara 
-        variabel input dan output. Ini sangat berguna ketika data memiliki hubungan yang jelas dan sederhana, seperti memprediksi harga berdasarkan fitur-fitur yang 
-        diketahui, seperti ukuran RAM atau penyimpanan. Keunggulannya terletak pada efisiensi komputasi dan kemampuannya untuk memberikan gambaran umum dengan hasil 
-        yang mudah dipahami.
-        
-        Random Forest dipilih karena kemampuannya untuk menangani data yang lebih kompleks dan hubungan non-linier. Sebagai metode ensemble yang menggabungkan banyak 
-        pohon keputusan, random forest dapat menangani interaksi antar fitur dengan lebih baik, bahkan ketika hubungan antar variabel tidak linier. Selain itu, ia 
-        memiliki keunggulan dalam mengurangi overfitting dan memberikan prediksi yang lebih stabil dan akurat pada dataset yang lebih besar dan beragam.
-        </div>
-    """, unsafe_allow_html=True)
-
-    st.header("Perbedaan Memakai Metode Linear Regression dan Random Forest")
-    st.markdown("""
-        <div style="text-align: justify;">
-        Linear Regression lebih cocok untuk masalah yang mempunyai hubungan linier sederhana antara variabel input dan output, dan lebih mudah diinterpretasikan.
-        Random Forest adalah model ensemble yang lebih kuat dan fleksibel untuk menangani data yang lebih kompleks dengan interaksi non-linier, serta lebih robust 
-        terhadap overfitting.
-        
-        Dalam konteks aplikasi prediksi harga laptop, Linear Regression lebih cocok jika harga laptop dipengaruhi oleh faktor-faktor yang memiliki hubungan linier, 
-        sementara Random Forest dapat memberikan hasil yang lebih baik ketika ada banyak interaksi kompleks antar faktor seperti RAM, penyimpanan, dan spesifikasi lainnya.
-        </div>
+        Dalam proyek prediksi harga laptop, Linear Regression digunakan untuk memodelkan hubungan linier antara faktor-faktor seperti spesifikasi laptop (RAM,
+        prosesor, merek, dll.) dengan harga. Ini berguna jika hubungan antar variabel mengikuti pola linier dan memberikan hasil cepat dengan interpretasi yang mudah.
+       </div>
     """, unsafe_allow_html=True)
 
     st.header("MAE (Mean Absolute Error), MSE (Mean Squared Error), dan RMSE (Root Mean Squared Error)")
     st.markdown("""
         <div style="text-align: justify;">
         MAE (Mean Absolute Error), MSE (Mean Squared Error), dan RMSE (Root Mean Squared Error) adalah metrik evaluasi yang digunakan untuk mengukur seberapa baik model 
-        memprediksi data. Ketika Anda menggunakan Linear Regression dan Random Forest, perubahan nilai metrik ini terjadi karena perbedaan dalam cara kedua model bekerja.
+        memprediksi data. 
         
-        1. Linear Regression: Model ini mengasumsikan adanya hubungan linier antara fitur dan target. Oleh karena itu, ketika data tidak benar-benar linier atau 
-        terdapat banyak interaksi antar fitur, model ini mungkin tidak dapat menangkap pola yang lebih kompleks. Akibatnya, prediksi yang dihasilkan mungkin lebih jauh
-        dari nilai sebenarnya, menghasilkan nilai MAE, MSE, dan RMSE yang lebih tinggi. Linear regression cenderung lebih baik jika hubungan antara variabel input dan 
-        output benar-benar linier.
-        2. Random Forest: Sebaliknya, Random Forest lebih fleksibel karena merupakan metode ensemble yang menggabungkan banyak pohon keputusan. Model ini dapat menangani 
-        hubungan non-linier dan interaksi kompleks antar fitur. Oleh karena itu, Random Forest biasanya menghasilkan prediksi yang lebih akurat pada dataset yang lebih 
-        kompleks atau yang memiliki hubungan tidak linier, yang mengarah pada nilai MAE, MSE, dan RMSE yang lebih rendah dibandingkan dengan linear regression. Random
-        Forest juga lebih tahan terhadap overfitting karena menggabungkan prediksi dari banyak pohon.
-        
-        Secara umum, MAE, MSE, dan RMSE cenderung lebih rendah pada Random Forest dibandingkan Linear Regression ketika data memiliki hubungan yang kompleks dan tidak linier, karena 
-        kemampuan Random Forest dalam menangani interaksi antar fitur yang lebih baik.
+       -  MAE (Mean Absolute Error): Mengukur rata-rata kesalahan absolut antara prediksi dan nilai asli. Semakin kecil nilai MAE, semakin baik model, karena kesalahan antara nilai prediksi dan nilai sebenarnya semakin kecil.
+
+       - MSE (Mean Squared Error): Mengukur rata-rata kuadrat selisih antara prediksi dan nilai asli. Semakin kecil nilai MSE, semakin baik model. MSE memberikan penalti yang lebih besar untuk kesalahan yang lebih besar karena kesalahan dikuadratkan.
+
+       - RMSE (Root Mean Squared Error): Merupakan akar kuadrat dari MSE, yang membuatnya memiliki satuan yang sama dengan nilai asli (misalnya, harga dalam hal ini). Semakin kecil nilai RMSE, semakin baik model.
+            
         </div>
     """, unsafe_allow_html=True)
 
@@ -245,7 +221,7 @@ def show_about():
 
        1. Menggunakan data baru untuk uji model (misalnya, data uji yang berbeda dari data sebelumnya).
        2. Melatih ulang model dengan data pelatihan yang berbeda (misalnya, menggunakan data pelatihan yang lebih banyak atau lebih sedikit).
-       3. Mengubah model (misalnya, menggunakan model yang berbeda seperti Linear Regression vs Random Forest).
+       3. Mengubah model.
        Namun, jika hanya spesifikasi laptop baru yang diubah, dan model yang sama serta data uji yang sama digunakan, metrik evaluasi tidak akan terpengaruh.
        
 
